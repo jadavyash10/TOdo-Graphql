@@ -1,8 +1,8 @@
 import { Route } from "react-router-dom";
 import Home from "../pages/Home";
-import AllTodo from '../todos/AllTodo';
-import TodoForm from '../todos/TodoForm';
-
+import AllTodo from "../todos/AllTodo";
+import Index from "../todos/Index";
+import TodoForm from "../todos/TodoForm";
 
 export const RoutesArr = [
   {
@@ -25,7 +25,11 @@ export const RoutesArr = [
     element: <AllTodo />,
     id: "allTodo",
   },
-
+  {
+    path: "/pagination",
+    element: <Index />,
+    id: "pagination",
+  },
 ];
 
 const routing = (arr) => {

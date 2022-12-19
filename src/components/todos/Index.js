@@ -1,15 +1,24 @@
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { DELETE_TODO, GET_ALL_TODO } from "../graphql/querys ";
+import {
+  DELETE_TODO,
+  GET_ALL_TODO,
+  GET_ALL_TODO_PAGE,
+} from "../graphql/querys ";
 import { deleteTodoSet, getAllTodoSet } from "../redux/actions/Index";
 import todoReducer from "../redux/reducers/TodoReducers";
 
-const AllTodo = () => {
+const Index = () => {
+  const [page, setPage] = useState(1);
   const dispatch = useDispatch();
 
-  const { data, loading, error } = useQuery(GET_ALL_TODO);
+  const { data, loading, error } = useQuery(GET_ALL_TODO_PAGE, {
+    variables: {
+      options: { paginate: { page: page, limit: 10 } },
+    },
+  });
   // const [onClickGetAllTodo, { data, loading, error }] =
   //   useLazyQuery(GET_ALL_TODO);
   const [
@@ -37,7 +46,7 @@ const AllTodo = () => {
   );
 
   const reduxData = useSelector((state) => state.todoReducer.data);
-
+console.log({ data, loading, error })
   useEffect(() => {
     if (data) {
       dispatch(getAllTodoSet(data?.todos?.data));
@@ -66,7 +75,7 @@ const AllTodo = () => {
       {loading ? (
         <h4>Loading....</h4>
       ) : (
-        <div >
+        <div>
           {data?.todos?.data?.length ? (
             <div>
               <h2>All Todo</h2>
@@ -76,8 +85,8 @@ const AllTodo = () => {
                     <th>No</th>
                     <th>Title</th>
                     <th>Completed</th>
-                    <th>Edit</th>
-                    <th>Delete</th>
+                    {/* <th>Edit</th>
+                    <th>Delete</th> */}
                   </tr>
                 </thead>
                 <tbody>
@@ -87,7 +96,7 @@ const AllTodo = () => {
                         <td>{index + 1}</td>
                         <td>{value.title}</td>
                         <td>{String(value.completed)}</td>
-                        <td>
+                        {/* <td>
                           <button
                             className="btn btn-primary"
                             onClick={() => handleEdit(value.id)}
@@ -104,12 +113,31 @@ const AllTodo = () => {
                           >
                             Delete
                           </button>
-                        </td>
+                        </td> */}
                       </tr>
                     );
                   })}
                 </tbody>
               </table>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <button
+                  onClick={() => {
+                    setPage((pre) => pre - 1);
+                  }}
+                  disabled={page === 1}
+                >
+                  Previous
+                </button>
+                <span>Page {page} </span>
+                <button
+                  onClick={() => {
+                    setPage((pre) => pre + 1);
+                  }}
+                  // disabled={data?.todos?.data?.length / 10 === page}
+                >
+                  Next
+                </button>
+              </div>
             </div>
           ) : null}
         </div>
@@ -118,4 +146,4 @@ const AllTodo = () => {
   );
 };
 
-export default AllTodo;
+export default Index;

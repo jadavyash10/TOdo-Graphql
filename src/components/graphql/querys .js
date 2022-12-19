@@ -1,8 +1,27 @@
 import { gql } from "@apollo/client";
 
+export const CORE_DATA_FIELDS = gql`
+  fragment CoreCommentFields on Todo {
+    id
+    title
+    completed
+  }
+`;
+
 export const GET_ALL_TODO = gql`
+  ${CORE_DATA_FIELDS}
   query getTodo {
     todos {
+      data {
+        ...CoreCommentFields
+      }
+    }
+  }
+`;
+
+export const GET_ALL_TODO_PAGE = gql`
+  query getTodoPAGE($options: PageQueryOptions) {
+    todos(options: $options) {
       data {
         id
         title
@@ -13,33 +32,30 @@ export const GET_ALL_TODO = gql`
 `;
 
 export const ADD_TODO = gql`
+  ${CORE_DATA_FIELDS}
   mutation addTodo($input: CreateTodoInput!) {
     createTodo(input: $input) {
-      id
-      title
-      completed
+      ...CoreCommentFields
     }
   }
 `;
 
 export const GET_EDIT_TODO = gql`
+  ${CORE_DATA_FIELDS}
   query getEditTodo($id: ID!) {
     todo(id: $id) {
-      id
-      title
-      completed
+      ...CoreCommentFields
     }
   }
 `;
 
 export const UPDATE_TODO = gql`
-mutation updateTodo($id: ID!,$input:UpdateTodoInput!) {
-  updateTodo(id:$id,input:$input){
-    id
-    title
-    completed
+  ${CORE_DATA_FIELDS}
+  mutation updateTodo($id: ID!, $input: UpdateTodoInput!) {
+    updateTodo(id: $id, input: $input) {
+      ...CoreCommentFields
+    }
   }
-}
 `;
 
 export const DELETE_TODO = gql`
