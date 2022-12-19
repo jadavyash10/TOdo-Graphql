@@ -13,13 +13,13 @@ import store from "./components/redux/store/Index";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <BrowserRouter>
-    <React.StrictMode>
+    {/* <React.StrictMode> */}
       <Provider store={store}>
         <ApolloProvider client={client}>
           <App />
         </ApolloProvider>
       </Provider>
-    </React.StrictMode>
+    {/* </React.StrictMode> */}
   </BrowserRouter>
 );
 

@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { ADD_TODO, GET_EDIT_TODO, UPDATE_TODO } from "../graphql/querys ";
 import { addTodoSet, updateTodoSet } from "../redux/actions/Index";
+import { GET_ALL_TODO } from "../graphql/querys ";
+import { client } from "../graphql/Index";
 
 const TodoForm = () => {
   const [todo, setTodo] = useState({
@@ -15,7 +17,7 @@ const TodoForm = () => {
   const reduxData = useSelector((state) => state.todoReducer.data);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+console.log(todo)
   const {
     data: editData,
     loading,
@@ -28,12 +30,56 @@ const TodoForm = () => {
   const [
     updateTodo,
     { data: updateData, error: updateDataError, loading: updateDataLoading },
-  ] = useMutation(UPDATE_TODO);
+  ] = useMutation(UPDATE_TODO, {
+    update(cache, { data }) {
+      const allData = cache.readQuery({
+        query: GET_ALL_TODO,
+      });
+
+      const cloneData = [...allData.todos.data];
+      const index = allData?.todos.data.findIndex(
+        (todo) => todo.id == data.updateTodo.id
+      );
+      cloneData[index] = {
+        ...data.updateTodo,
+      };
+
+      cache.writeQuery({
+        query: GET_ALL_TODO,
+        data: {
+          todos: {
+            data: [...cloneData],
+          },
+        },
+      });
+    },
+  });
 
   const [
     addTodo,
     { data: addTodoData, error: addTodoDataError, loading: addTodoDataLoading },
-  ] = useMutation(ADD_TODO);
+  ] = useMutation(ADD_TODO, {
+    onCompleted: () => {
+      setTodo({
+        title: "",
+        completed: "",
+      });
+    },
+    update(cache, { data }) {
+      console.log(data);
+      const allData = cache.readQuery({
+        query: GET_ALL_TODO,
+      });
+      cache.writeQuery({
+        query: GET_ALL_TODO,
+        data: {
+          todos: {
+            data: [data.createTodo, ...allData.todos.data],
+          },
+        },
+      });
+    },
+  });
 
   useEffect(() => {
     if (id !== undefined || id !== "") {
@@ -106,12 +152,8 @@ const TodoForm = () => {
           ...todo,
         })
       );
-      navigate("/allTodo");
+      // navigate("/allTodo");
     }
-    setTodo({
-      title: "",
-      completed: "",
-    });
   };
 
   console.log("addTodo", addTodoData);
